@@ -1,0 +1,69 @@
+data_dir = "/var/lib/vector"
+
+[sources.gelf_tcp]
+type = "socket"
+mode = "tcp"
+address = "0.0.0.0:12201"
+decoding.codec = "json"
+framing.method = "newline_delimited"
+
+[sources.gelf_udp]
+type = "socket"
+mode = "udp"
+address = "0.0.0.0:12202"
+decoding.codec = "json"
+
+[sources.syslog_udp]
+type = "syslog"
+mode = "udp"
+address = "0.0.0.0:5140"
+
+[transforms.gelf_parse]
+type = "remap"
+inputs = ["gelf_tcp", "gelf_udp"]
+source = '''
+  .message  = to_string(.short_message) ?? to_string(.message) ?? ""
+  .host     = to_string(.host) ?? to_string(.hostname) ?? "unknown"
+  .facility = to_string(.facility) ?? ""
+  .source   = "gelf"
+  .level    = to_string(.level) ?? "6"
+  del(.version)
+'''
+
+[transforms.syslog_parse]
+type = "remap"
+inputs = ["syslog_udp"]
+source = '''
+  .host       = to_string(.hostname) ?? to_string(.host) ?? "unknown"
+  .facility   = to_string(.facility) ?? ""
+  .level_name = to_string(.severity) ?? "info"
+  .source     = "syslog"
+  .appname    = to_string(.appname) ?? ""
+'''
+
+[sinks.loki_gelf]
+type     = "loki"
+inputs   = ["gelf_parse"]
+endpoint = "http://loki:3100"
+encoding.codec = "json"
+
+[sinks.loki_gelf.labels]
+source   = "{{ source }}"
+host     = "{{ host }}"
+level    = "{{ level }}"
+facility = "{{ facility }}"
+job      = "gelf"
+
+[sinks.loki_syslog]
+type     = "loki"
+inputs   = ["syslog_parse"]
+endpoint = "http://loki:3100"
+encoding.codec = "json"
+
+[sinks.loki_syslog.labels]
+source   = "{{ source }}"
+host     = "{{ host }}"
+level    = "{{ level_name }}"
+facility = "{{ facility }}"
+appname  = "{{ appname }}"
+job      = "syslog"

@@ -1,0 +1,81 @@
+version: "3.8"
+
+services:
+
+  # One-shot container that:
+  #  - fixes ownership of the loki data volume
+  #  - copies the config into the volume so Loki (uid 10001) can read it
+  loki-init:
+    image: busybox
+    container_name: loki-init
+    user: root
+    command: >
+      sh -c "
+        cp /config-src/loki-config.yml /loki-config/loki-config.yml &&
+        chown 10001:10001 /loki-config/loki-config.yml &&
+        chown -R 10001:10001 /loki-data
+      "
+    volumes:
+      - ./loki-config.yml:/config-src/loki-config.yml:ro
+      - loki-config:/loki-config
+      - loki-data:/loki-data
+    restart: "no"
+
+  loki:
+    image: grafana/loki:2.9.4
+    container_name: loki
+    user: "10001:10001"
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki-config:/etc/loki
+      - loki-data:/loki
+    command: -config.file=/etc/loki/loki-config.yml
+    depends_on:
+      loki-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    networks:
+      - logging
+
+  vector:
+    image: timberio/vector:0.36.0-alpine
+    container_name: vector
+    ports:
+      - "12201:12201"        # GELF HTTP (TCP)
+      - "5140:5140/udp"      # Syslog UDP
+    volumes:
+      - ./vector.toml:/etc/vector/vector.toml:ro
+    command: ["--config", "/etc/vector/vector.toml"]
+    depends_on:
+      - loki
+    restart: unless-stopped
+    networks:
+      - logging
+
+  grafana:
+    image: grafana/grafana:10.3.3
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - loki
+    restart: unless-stopped
+    networks:
+      - logging
+
+volumes:
+  loki-data:
+  loki-config:
+  grafana-data:
+
+networks:
+  logging:
+    driver: bridge
