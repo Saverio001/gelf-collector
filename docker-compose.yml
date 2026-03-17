@@ -59,12 +59,13 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus-data:/prometheus
+      - ./prometheus:/etc/prometheus-config:ro   # project config dir
+      - prometheus-data:/prometheus              # data volume
     command:
-      - --config.file=/etc/prometheus/prometheus.yml
+      - --config.file=/etc/prometheus-config/prometheus.yml
       - --storage.tsdb.path=/prometheus
       - --storage.tsdb.retention.time=7d
+      - --web.enable-lifecycle
     restart: unless-stopped
     networks:
       - logging
