@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+# Load scrape configs from separate files
+scrape_config_files:
+  - /etc/prometheus-config/scrape_configs/*.yml
+
+# Load alerting rules (optional)
+rule_files:
+  - /etc/prometheus-config/rules/*.yml

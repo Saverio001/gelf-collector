@@ -1,0 +1,25 @@
+scrape_configs:
+  - job_name: federate-prometheus
+    honor_labels: true
+    params:
+      'match[]':
+        - '{job!=""}'
+
+    static_configs:
+      - targets: ['192.168.122.10:19091']
+        labels:
+          __metrics_path__: /api/v1/rbfs/elements/R1/services/prometheus/proxy/federate
+          switch: R1
+
+      - targets: ['192.168.122.10:19091']
+        labels:
+          __metrics_path__: /api/v1/rbfs/elements/R2/services/prometheus/proxy/federate
+          switch: R2
+      - targets: ['192.168.122.10:19091']
+        labels:
+          __metrics_path__: /api/v1/rbfs/elements/R3/services/prometheus/proxy/federate
+          switch: R3
+      - targets: ['192.168.122.10:19091']
+        labels:
+          __metrics_path__: /api/v1/rbfs/elements/R4/services/prometheus/proxy/federate
+          switch: R4
