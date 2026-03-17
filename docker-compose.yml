@@ -2,9 +2,7 @@ version: "3.8"
 
 services:
 
-  # One-shot container that:
-  #  - fixes ownership of the loki data volume
-  #  - copies the config into the volume so Loki (uid 10001) can read it
+  # One-shot container that fixes volume ownership before Loki starts
   loki-init:
     image: busybox
     container_name: loki-init
@@ -42,13 +40,31 @@ services:
     image: timberio/vector:0.36.0-alpine
     container_name: vector
     ports:
-      - "12201:12201"        # GELF HTTP (TCP)
+      - "12201:12201"        # GELF TCP
+      - "12202:12202/udp"    # GELF UDP
       - "5140:5140/udp"      # Syslog UDP
+      - "9598:9598"          # Prometheus metrics
     volumes:
       - ./vector.toml:/etc/vector/vector.toml:ro
     command: ["--config", "/etc/vector/vector.toml"]
     depends_on:
       - loki
+    restart: unless-stopped
+    networks:
+      - logging
+
+  prometheus:
+    image: prom/prometheus:v2.50.1
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=7d
     restart: unless-stopped
     networks:
       - logging
@@ -67,6 +83,7 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
     depends_on:
       - loki
+      - prometheus
     restart: unless-stopped
     networks:
       - logging
@@ -74,6 +91,7 @@ services:
 volumes:
   loki-data:
   loki-config:
+  prometheus-data:
   grafana-data:
 
 networks:

@@ -1,5 +1,10 @@
 data_dir = "/var/lib/vector"
 
+# Expose Prometheus metrics endpoint on port 9598
+[api]
+enabled = true
+address = "0.0.0.0:8686"
+
 [sources.gelf_tcp]
 type = "socket"
 mode = "tcp"
@@ -17,6 +22,9 @@ decoding.codec = "json"
 type = "syslog"
 mode = "udp"
 address = "0.0.0.0:5140"
+
+[sources.internal_metrics]
+type = "internal_metrics"
 
 [transforms.gelf_parse]
 type = "remap"
@@ -67,3 +75,8 @@ level    = "{{ level_name }}"
 facility = "{{ facility }}"
 appname  = "{{ appname }}"
 job      = "syslog"
+
+[sinks.prometheus_metrics]
+type    = "prometheus_exporter"
+inputs  = ["internal_metrics"]
+address = "0.0.0.0:9598"
