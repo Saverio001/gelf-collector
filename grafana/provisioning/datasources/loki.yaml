@@ -15,3 +15,14 @@ datasources:
     isDefault: true
     version: 1
     editable: false
+
+  - name: Prometheus
+    type: prometheus
+    uid: prometheus-homelab
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: false
+    version: 1
+    editable: false
+    jsonData:
+      timeInterval: 15s
