@@ -1,20 +1,23 @@
-# Homelab Log Stack — Loki + Vector + Grafana
+# Homelab Log Stack — Loki + Vector + Prometheus + Grafana
 
 A lightweight log ingestion and visualization stack for homelabs, supporting
 GELF over TCP and structured syslog over UDP.
 
-## Architecture
+## Log ingestion Architecture
 
 ```
-Application (GELF TCP) ──┐
-                          ├──▶  Vector  ──▶  Loki  ──▶  Grafana
-Router (Syslog UDP)    ──┘
+Structured logs (GELF TCP) ──┐
+                             ├──▶  Vector  ──▶  Loki  ──▶  Grafana
+Syslog (Syslog UDP)        ──┘                                ▲
+                                                              │
+Pull-based telemetry       ─────▶  Prometheus  ───────────────┘
 ```
 
 | Component | Image | Purpose |
 |-----------|-------|---------|
 | Vector | timberio/vector:0.36.0-alpine | Ingests and normalises log streams |
 | Loki | grafana/loki:2.9.4 | Log storage and query engine |
+| Prometheus | prom/prometheus:v2.50.1 | Time-series database |
 | Grafana | grafana/grafana:10.3.3 | Visualisation |
 
 ## Directory layout
