@@ -44,6 +44,7 @@ services:
       - "12202:12202/udp"    # GELF UDP
       - "5140:5140/udp"      # Syslog UDP
       - "9598:9598"          # Prometheus metrics
+      - "18686:8686"         # Vector API
     volumes:
       - ./vector.toml:/etc/vector/vector.toml:ro
     command: ["--config", "/etc/vector/vector.toml"]

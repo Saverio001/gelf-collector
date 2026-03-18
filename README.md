@@ -112,14 +112,17 @@ Go to **Explore** (compass icon) and use LogQL:
 # 1. Check all containers are running
 docker compose ps
 
-# 2. Check Loki is healthy
+# 2. Check Vector is healthy
+curl http://localhost:18686/health
+
+# 3. Check Loki is healthy
 curl -s http://localhost:3100/ready
 
-# 3. Send a test GELF message
+# 4. Send a test GELF message
 printf '{"version":"1.1","host":"testhost","short_message":"Hello from GELF","level":6,"facility":"app"}\n' \
   | nc -q1 localhost 12201
 
-# 4. Confirm it arrived in Loki
+# 5. Confirm it arrived in Loki
 curl -s "http://localhost:3100/loki/api/v1/query_range" \
   --data-urlencode 'query={job="gelf"}' \
   --data-urlencode 'limit=5' \
@@ -152,4 +155,15 @@ docker compose down
 
 # Stop and wipe all data
 docker compose down -v
+```
+
+
+## Troubleshooting missing data
+```bash
+# Check Vector log ingestion
+docker exec -it vector vector top 
+
+# Check Prometheus targets
+http://localhost:9090/targets?search=
+
 ```
