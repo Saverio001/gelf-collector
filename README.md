@@ -52,6 +52,7 @@ Grafana will be available at http://localhost:3000 (admin / admin).
 | 12202 | UDP | GELF ingestion (alternative) |
 | 5140 | UDP | Syslog ingestion |
 | 3100 | TCP | Loki HTTP API |
+| 9090 | TCP | Prometheus HTTP API |
 | 3000 | TCP | Grafana UI |
 
 ## Sending logs
