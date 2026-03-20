@@ -15,10 +15,10 @@ Pull-based telemetry       ─────▶  Prometheus  ───────
 
 | Component | Image | Purpose |
 |-----------|-------|---------|
-| Vector | timberio/vector:0.36.0-alpine | Ingests and normalises log streams |
-| Loki | grafana/loki:2.9.4 | Log storage and query engine |
-| Prometheus | prom/prometheus:v2.50.1 | Time-series database |
-| Grafana | grafana/grafana:10.3.3 | Visualisation |
+| Vector |  timberio/vector:0.54.0-alpine | Ingests and normalises log streams |
+| Loki | grafana/loki:3.5.12 | Log storage and query engine |
+| Prometheus | prom/prometheus:v3.5.1 | Time-series database |
+| Grafana | grafana/grafana:12.1.9 | Visualisation |
 
 ## Directory layout
 

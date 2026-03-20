@@ -18,7 +18,7 @@ The inventory files contains the CTRLD base URL, and a list of nodes and filenam
 
 
     defaults:
-      base_url: http://ctrld-host.net17.link:19091/
+      base_url: http://ctrld-host.net17.link:19091
     nodes:
       - name: R1
         config: R1.json
@@ -30,4 +30,4 @@ The inventory files contains the CTRLD base URL, and a list of nodes and filenam
         config: R2.json    
 
 
-I am running CTRLD at the URL http://ctrld-host.net17.link:19091/, please replace it according to your configuration (e.g. replace host and port)
+I am running CTRLD at the URL http://ctrld-host.net17.link:19091, please replace it according to your configuration (e.g. replace host and port)
