@@ -1,0 +1,122 @@
+#!/usr/bin/env python3
+"""
+rtb-config.py - Push or save router configs via RESTCONF proxy.
+
+Usage:
+    python restconf_manager.py push [-i inventory.yml]
+    python restconf_manager.py save [-i inventory.yml]
+"""
+
+import argparse
+import os
+import sys
+
+import requests
+import yaml
+
+
+RESTCONF_PATH = "/api/v1/rbfs/elements/{element}/services/restconfd/proxy/restconf/data"
+
+
+def load_inventory(inventory_path: str) -> dict:
+    if not os.path.exists(inventory_path):
+        print(f"Error: inventory file '{inventory_path}' not found.", file=sys.stderr)
+        sys.exit(1)
+    with open(inventory_path, "r") as f:
+        return yaml.safe_load(f)
+
+
+def get_node_url(base_url: str, element: str) -> str:
+    path = RESTCONF_PATH.format(element=element)
+    return f"{base_url.rstrip('/')}{path}"
+
+
+def save_configs(inventory: dict, inventory_dir: str) -> None:
+    base_url = inventory["defaults"]["base_url"]
+    nodes = inventory["nodes"]
+
+    headers = {"Accept": "application/json"}
+
+    for node in nodes:
+        name = node["name"]
+        config_filename = node["config"]
+        output_path = os.path.join(inventory_dir, config_filename)
+
+        url = get_node_url(base_url, name) + "?content=config"
+        print(f"[{name}] Fetching config from {url} ...")
+
+        try:
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()
+        except requests.RequestException as e:
+            print(f"[{name}] ERROR fetching config: {e}", file=sys.stderr)
+            continue
+
+        with open(output_path, "wb") as f:
+            f.write(response.content)
+        print(f"[{name}] Config saved to '{output_path}'.")
+
+
+def push_configs(inventory: dict, inventory_dir: str) -> None:
+    base_url = inventory["defaults"]["base_url"]
+    nodes = inventory["nodes"]
+
+    headers = {
+        "Content-Type": "application/yang-data+json",
+        "Accept": "application/json",
+    }
+
+    for node in nodes:
+        name = node["name"]
+        config_filename = node["config"]
+        config_path = os.path.join(inventory_dir, config_filename)
+
+        if not os.path.exists(config_path):
+            print(
+                f"[{name}] ERROR: config file '{config_path}' not found. Skipping.",
+                file=sys.stderr,
+            )
+            continue
+
+        url = get_node_url(base_url, name)
+        print(f"[{name}] Pushing config from '{config_path}' to {url} ...")
+
+        try:
+            with open(config_path, "rb") as f:
+                response = requests.put(url, headers=headers, data=f)
+            response.raise_for_status()
+        except requests.RequestException as e:
+            print(f"[{name}] ERROR pushing config: {e}", file=sys.stderr)
+            continue
+
+        print(f"[{name}] Config pushed successfully (HTTP {response.status_code}).")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Push or save router configs via RESTCONF."
+    )
+    parser.add_argument(
+        "action",
+        choices=["push", "save"],
+        help="Action to perform: 'push' sends configs to routers, 'save' retrieves and stores them.",
+    )
+    parser.add_argument(
+        "-i", "--inventory",
+        default="inventory.yml",
+        help="Path to the inventory YAML file (default: inventory.yml).",
+    )
+
+    args = parser.parse_args()
+
+    inventory = load_inventory(args.inventory)
+    inventory_dir = os.path.dirname(os.path.abspath(args.inventory))
+
+    if args.action == "save":
+        save_configs(inventory, inventory_dir)
+    elif args.action == "push":
+        push_configs(inventory, inventory_dir)
+
+
+if __name__ == "__main__":
+    main()

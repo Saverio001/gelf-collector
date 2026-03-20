@@ -1,0 +1,11 @@
+defaults:
+  base_url: http://ctrld-host.net17.link:19091
+nodes:
+  - name: R1
+    config: R1.json
+  - name: R2
+    config: R2.json
+  - name: R3
+    config: R3.json
+  - name: R4
+    config: R4.json    
