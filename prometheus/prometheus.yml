@@ -6,6 +6,12 @@ global:
 scrape_config_files:
   - /etc/prometheus-config/scrape_configs/*.yml
 
+alerting:  
+  alertmanagers:
+  - static_configs: 
+    - targets:
+      - "alertmanager:9093"
+
 # Load alerting rules (optional)
 rule_files:
   - /etc/prometheus-config/rules/*.yml

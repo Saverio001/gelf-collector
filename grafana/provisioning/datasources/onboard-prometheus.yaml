@@ -1,0 +1,79 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus_R1
+    type: prometheus
+    uid: prometheus-on-R1
+    access: proxy
+    url: http://ctrld-host.net17.link:19091/api/v1/rbfs/elements/R1/services/prometheus/proxy/
+    isDefault: false
+    version: 1
+    editable: false
+    jsonData:
+      timeInterval: 15s
+  - name: Alertmanager_R1
+    type: alertmanager
+    url: http://ctrld-host.net17.link:19091/api/v1/rbfs/elements/R1/services/alertmanager/proxy/
+    access: proxy
+    jsonData:
+      # Valid options for implementation include mimir, cortex and prometheus
+      implementation: prometheus
+      # Whether or not Grafana should send alert instances to this Alertmanager
+      handleGrafanaManagedAlerts: false
+  - name: Prometheus_R2
+    type: prometheus
+    uid: prometheus-on-R2
+    access: proxy
+    url: http://ctrld-host.net17.link:19091/api/v1/rbfs/elements/R2/services/prometheus/proxy/
+    isDefault: false
+    version: 1
+    editable: false
+    jsonData:
+      timeInterval: 15s
+  - name: Alertmanager_R2
+    type: alertmanager
+    url: http://ctrld-host.net17.link:19091/api/v1/rbfs/elements/R2/services/alertmanager/proxy/
+    access: proxy
+    jsonData:
+      # Valid options for implementation include mimir, cortex and prometheus
+      implementation: prometheus
+      # Whether or not Grafana should send alert instances to this Alertmanager
+      handleGrafanaManagedAlerts: false
+  - name: Prometheus_R3
+    type: prometheus
+    uid: prometheus-on-R3
+    access: proxy
+    url: http://ctrld-host.net17.link:19091/api/v1/rbfs/elements/R3/services/prometheus/proxy/
+    isDefault: false
+    version: 1
+    editable: false
+    jsonData:
+      timeInterval: 15s
+  - name: Alertmanager_R3
+    type: alertmanager
+    url: http://ctrld-host.net17.link:19091/api/v1/rbfs/elements/R3/services/alertmanager/proxy/
+    access: proxy
+    jsonData:
+      # Valid options for implementation include mimir, cortex and prometheus
+      implementation: prometheus
+      # Whether or not Grafana should send alert instances to this Alertmanager
+      handleGrafanaManagedAlerts: false
+  - name: Prometheus_R4
+    type: prometheus
+    uid: prometheus-on-R4
+    access: proxy
+    url: http://ctrld-host.net17.link:19091/api/v1/rbfs/elements/R4/services/prometheus/proxy/
+    isDefault: false
+    version: 1
+    editable: false
+    jsonData:
+      timeInterval: 15s                
+  - name: Alertmanager_R4
+    type: alertmanager
+    url: http://ctrld-host.net17.link:19091/api/v1/rbfs/elements/R4/services/alertmanager/proxy/
+    access: proxy
+    jsonData:
+      # Valid options for implementation include mimir, cortex and prometheus
+      implementation: prometheus
+      # Whether or not Grafana should send alert instances to this Alertmanager
+      handleGrafanaManagedAlerts: false

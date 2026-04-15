@@ -9,7 +9,7 @@ deleteDatasources:
 datasources:
   - name: Loki
     type: loki
-    uid: loki-homelab
+    uid: loki-local
     access: proxy
     url: http://loki:3100
     isDefault: true
@@ -18,7 +18,7 @@ datasources:
 
   - name: Prometheus
     type: prometheus
-    uid: prometheus-homelab
+    uid: prometheus-local
     access: proxy
     url: http://prometheus:9090
     isDefault: false

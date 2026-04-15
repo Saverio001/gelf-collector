@@ -46,8 +46,8 @@ services:
       - "9598:9598"          # Prometheus metrics
       - "18686:8686"         # Vector API
     volumes:
-      - ./vector.toml:/etc/vector/vector.toml:ro
-    command: ["--config", "/etc/vector/vector.toml"]
+      - ./vector.yml:/etc/vector/vector.yml:ro
+    command: ["--config", "/etc/vector/vector.yml"]
     depends_on:
       - loki
     restart: unless-stopped
@@ -70,7 +70,29 @@ services:
     restart: unless-stopped
     networks:
       - logging
+  alertmanager:
+    image: prom/alertmanager:v0.31.1
+    container_name: alertmanager
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/config.yml
+    ports:
+      - 9093:9093
+    restart: unless-stopped
+    networks:
+      - logging
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+      - '--storage.path=/alertmanager'
 
+
+  node-exporter:
+    image: prom/node-exporter:v1.11.0-busybox
+    container_name: "node-exporter"
+    expose:
+      - "9100"
+    restart: unless-stopped
+    networks:
+      - logging
   grafana:
     image: grafana/grafana:12.1.9
     container_name: grafana
